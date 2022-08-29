@@ -1,22 +1,4 @@
-/***************************************************
-This is an example sketch for our optical Fingerprint sensor
-
-Designed specifically to work with the Adafruit BMP085 Breakout
-----> http://www.adafruit.com/products/751
-
-These displays use TTL Serial to communicate, 2 pins are required to
-interface
-Adafruit invests time and resources providing this open source code,
-please support Adafruit and open-source hardware by purchasing
-products from Adafruit!
-
-Written by Limor Fried/Ladyada for Adafruit Industries.
-BSD license, all text above must be included in any redistribution
- ****************************************************/
-
-
 #include <Adafruit_Fingerprint.h>
-
 
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
 // For UNO and others without hardware serial, we must use software serial...
@@ -73,7 +55,7 @@ return;
 
 void mgon (int a) {
      if (a == 1){
-          digitalWrite(9,HIGH);
+          digitalWrite(9,LOW);
           Serial.print("start1 : sig =");
           Serial.print(sig);
           Serial.print("  /  old_sig =");
@@ -84,12 +66,12 @@ void mgon (int a) {
           {    
                Serial.println("start!");
                lightning(1);
-               if (sig == 1){old_sig = 0;}
+               if (sig == 0){old_sig = 0;}
           }
           
           
      } else if (a == 0){
-          digitalWrite(9,LOW);
+          digitalWrite(9,HIGH);
           lightning(0);
      } else {
           Serial.println("mgon error");
@@ -97,11 +79,7 @@ void mgon (int a) {
 return;
 }
 
-
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
-
-
-
 
 void setup()
 {    
@@ -109,7 +87,10 @@ void setup()
      pinMode(10,OUTPUT);
      pinMode (9,OUTPUT);
      pinMode(5,OUTPUT);
-     pinMode(4,INPUT);
+     pinMode(4,INPUT_PULLUP);
+     digitalWrite(9,HIGH);
+     digitalWrite(5,LOW);
+     
      Serial.begin(9600);
      while (!Serial);  // For Yun/Leo/Micro/Zero/...
      delay(100);
@@ -151,12 +132,14 @@ Serial.print(F("Baud rate: ")); Serial.println(finger.baud_rate);
 void loop()                     // run over and over again
 {
   sig = digitalRead(4);
-  if (sig == 1 && old_sig == 0){
+  Serial.print("sig = ");
+  Serial.println(sig);
+  if (sig == 0 && old_sig == 0){
     Serial.println("button on");
     old_sig = 1;
     getFingerprintID();        
     
-  }else if(sig == 0 && old_sig == 1){
+  }else if(sig == 1 && old_sig == 1){
     Serial.println("button off");
     old_sig = 0;
   }
@@ -248,5 +231,3 @@ int getFingerprintIDez() {
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
   return finger.fingerID;
 }
-
-
